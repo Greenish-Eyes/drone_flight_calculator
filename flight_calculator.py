@@ -2,32 +2,37 @@ ACTIVE_FLIGHT_TIME_BASELINE = 180  # MINUTES
 
 MINUTES_LOST_PER_GRAM = 0.1
 
-# Accept a sugestion from GitHub Copilot.
-# Copilot suggested a direct subtraction; edited to include an explicit zero‑floor clamp
+# Edit a sugestion from GitHub Copilot.
+# Copilot suggested a direct subtraction; Just the missing value in the error string is the actual bug.
 
 def calculate_flight_time(weight_grams: float) -> float:
-
     """Return active flight time in minutes for the given payload weight."""
 
     if weight_grams < 0:
-        raise ValueError("weight_grams must be non-negative")
+        raise ValueError(f"weight_grams must be non-negative, got {weight_grams}")
 
     return max(0, ACTIVE_FLIGHT_TIME_BASELINE - MINUTES_LOST_PER_GRAM * weight_grams)
 
-# Accept a sugestion from GitHub Copilot.
-# Copilot proposed a simple range loop; kept structure but clarified step validation
+# Edit a sugestion from GitHub Copilot.
+# I kept Copilot original while-based flight_time_table as the primary function 
+# ,and added range()-based version alongside it as flight_time_table_range_based, with the negative-weight guard added.
 
-def flight_time_table(max_weight_grams: int, step_grams: int) -> list[tuple[int, float]]:
+def flight_time_table(max_weight_grams, step_grams):
 
     """Return flight times for payload weights from zero through the maximum."""
+
+    if max_weight_grams < 0:
+        raise ValueError("max_weight_grams must be non-negative")
 
     if step_grams <= 0:
         raise ValueError("step_grams must be greater than zero")
 
-    return [
-        (weight, calculate_flight_time(weight))
-        for weight in range(0, max_weight_grams + 1, step_grams)
-    ]
+    table = []
+    weight = 0
+    while weight <= max_weight_grams:
+        table.append((weight, calculate_flight_time(weight)))
+        weight += step_grams
+    return table
 
 if __name__ == "__main__":
     print(calculate_flight_time(0))     # w=0
